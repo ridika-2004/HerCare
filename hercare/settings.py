@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',
     'corsheaders',
+    'breast',
 ]
 
 MONGO_URI = "mongodb://localhost:27017/"

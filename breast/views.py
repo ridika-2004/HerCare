@@ -2,7 +2,13 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 import json
+import pymongo
 from datetime import datetime
+
+# ✅ Connect to MongoDB
+client = pymongo.MongoClient(settings.MONGO_URI)
+db = client[settings.MONGO_DB_NAME]  # Use database name from settings
+collection = db["breast"]   # Collection name
 
 @csrf_exempt
 def record_progress(request):
@@ -19,10 +25,7 @@ def record_progress(request):
             if not email or not step_number:
                 return JsonResponse({"status": "error", "message": "Missing required fields"}, status=400)
 
-            db = settings.db
-            collection = db["breast_progress"]
-
-            # Upsert progress record
+            # ✅ Save progress in MongoDB
             collection.update_one(
                 {"email": email, "step_number": step_number},
                 {
@@ -48,11 +51,8 @@ def get_progress_history(request, email):
     """
     if request.method == "GET":
         try:
-            db = settings.db
-            collection = db["breast_progress"]
-
+            # ✅ Fetch user progress
             records = list(collection.find({"email": email}, {"_id": 0}))
-
             return JsonResponse({"status": "success", "data": records}, safe=False)
 
         except Exception as e:

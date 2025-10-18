@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../services/pregnancy_service.dart';
+
 
 class MonthPageTemplate extends StatefulWidget {
   final int monthNumber;
@@ -237,6 +239,7 @@ class _MonthPageTemplateState extends State<MonthPageTemplate> {
                                     : null,
                               ),
                             ),
+                            
                             activeColor: const Color(0xFFFF69B4),
                             controlAffinity: ListTileControlAffinity.leading,
                             shape: RoundedRectangleBorder(
@@ -245,8 +248,33 @@ class _MonthPageTemplateState extends State<MonthPageTemplate> {
                           ),
                         );
                       }),
+                      
                     ),
                   ),
+                  ElevatedButton(
+  onPressed: () async {
+    List<String> completed = [];
+    for (int i = 0; i < widget.checklist.length; i++) {
+      if (checkedItems[i]) completed.add(widget.checklist[i]);
+    }
+
+    bool ok = await PregnancyService.saveProgress(
+      email: "user@example.com", // TODO: Replace with real user
+      month: widget.monthNumber,
+      completedItems: completed,
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(ok ? "Progress Saved ✅" : "Failed to Save ❌"))
+    );
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFFFF69B4),
+    minimumSize: const Size(double.infinity, 50),
+  ),
+  child: const Text("Save Progress", style: TextStyle(color: Colors.white)),
+),
+
 
                   const SizedBox(height: 24),
 

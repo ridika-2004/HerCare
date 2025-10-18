@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 import 'main.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 // --- Theme Colors ---
 const Color kPrimaryDarkPink = Color(0xFFE9386D);
@@ -95,8 +96,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       // Change 127.0.0.1 to 10.0.2.2 if testing on Android Emulator
       final url = _isLogin
-          ? Uri.parse('http://127.0.0.1:8000/api/login/')
-          : Uri.parse('http://127.0.0.1:8000/api/signup/');
+          ? Uri.parse('http://127.0.0.1:8000/user/login/')
+          : Uri.parse('http://127.0.0.1:8000/user/signup/');
 
       final body = json.encode({
         "email": email,
@@ -116,18 +117,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
         final data = json.decode(response.body);
 
-        if (response.statusCode == 200 && data["status"] == "success") {
+// ...
+
+if (response.statusCode == 200 && data["status"] == "success") {
   if (!mounted) return;
+
+  // 🩷 Save login info locally
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('userEmail', _emailController.text.trim());
+
+  print("✅ Login success — saved: ${_emailController.text.trim()}");
+
+  // 🏠 Navigate to the main screen
   Navigator.of(context).pushReplacement(
     MaterialPageRoute(builder: (context) => const MainNavigatorScreen()),
   );
+} else {
+  if (!mounted) return;
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(data["message"] ?? "Authentication failed")),
+  );
 }
- else {
-          if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(data["message"] ?? "Authentication failed")),
-          );
-        }
+
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(

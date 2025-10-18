@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'homepage.dart';                  // Home / dashboard
 import 'period_tracker_page.dart';
 import 'breast_cancer.dart';// Your PeriodTrackerPage
@@ -15,12 +16,22 @@ const Color kBackgroundColor = Color(0xFFFFFAFD);
 const Color kAppBarTextColor = Color(0xFF4A4A4A);
 const Color kWhiteCardColor = Color(0xFFFFFFFF);
 
-void main() {
-  runApp(const HerCareApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final prefs = await SharedPreferences.getInstance();
+  final savedEmail = prefs.getString('userEmail');
+
+print("🔍 Startup — Found saved email: $savedEmail");
+
+
+  runApp(HerCareApp(isLoggedIn: savedEmail != null));
 }
 
+
 class HerCareApp extends StatelessWidget {
-  const HerCareApp({super.key});
+  final bool isLoggedIn;
+  const HerCareApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -36,19 +47,20 @@ class HerCareApp extends StatelessWidget {
           surface: kBackgroundColor,
         ),
       ),
-      // Route so the home card can do: Navigator.pushNamed(context, '/period')
       routes: {
         '/period': (context) => PeriodTrackerPage(),
-        '/breast': (context) =>BreastCancerCheckApp(),
-        '/pregnancy': (context) =>PregnancyApp(),
-        '/mental': (context) =>MentalHealthScreen(),
+        '/breast': (context) => BreastCancerCheckApp(),
+        '/pregnancy': (context) => PregnancyApp(),
+        '/mental': (context) => MentalHealthScreen(),
         '/podcast': (context) => PodcastScreen(),
-        '/signup': (context) => SignUpScreen(),
+        '/signup': (context) => const SignUpScreen(),
       },
-      home: const MainNavigatorScreen(),
+      // 👇 if user already logged in → skip signup
+      home: isLoggedIn ? const MainNavigatorScreen() : const SignUpScreen(),
     );
   }
 }
+
 
 class MainNavigatorScreen extends StatefulWidget {
   const MainNavigatorScreen({super.key});

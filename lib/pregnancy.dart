@@ -9,8 +9,6 @@ import 'month7.dart';
 import 'month8.dart';
 import 'month9.dart';
 
-
-
 class PregnancyApp extends StatelessWidget {
   const PregnancyApp({super.key});
 
@@ -21,24 +19,26 @@ class PregnancyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.pink,
-          background: const Color(0xFFFFF5F7),
+          seedColor: const Color(0xFFFF69B4),
+          background: Colors.white,
         ),
         textTheme: const TextTheme(
           titleLarge: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.pink,
+            color: Colors.white,
           ),
           bodyMedium: TextStyle(fontSize: 16, color: Colors.black87),
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home: const PregnancyMonthsPage(),
+      home: const PregnancyMonthsPage(), // directly open PregnancyMonthsPage
     );
   }
 }
 
+
+// PregnancyMonthsPage remains the same as I sent earlier, with no manual leading/back arrow
 class PregnancyMonthsPage extends StatelessWidget {
   const PregnancyMonthsPage({super.key});
 
@@ -57,46 +57,119 @@ class PregnancyMonthsPage extends StatelessWidget {
     ];
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
+        // leading: IconButton(
+        //   icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
+        //   onPressed: () {
+        //     Navigator.of(context).pop();
+        //   },
+        // ),
         title: const Text(
-          "Pregnancy Journey 🤰",
+          "HerCare",
           style: TextStyle(
-            fontSize: 26,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFFFF6F61),
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+            letterSpacing: 0.5,
           ),
-          textAlign: TextAlign.center,
         ),
         centerTitle: true,
-        backgroundColor: Colors.pink.shade100,
-        elevation: 1,
-        shadowColor: Colors.pink.shade200,
+        backgroundColor: const Color(0xFFFF69B4),
+        elevation: 0,
+        toolbarHeight: 70,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        child: Column(
-          children: [
-            const SizedBox(height: 10),
-            Text(
-              "Select a month to view your journey details",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.pink.shade700,
-                fontWeight: FontWeight.w500,
-              ),
-              textAlign: TextAlign.center,
+      body: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: Color(0xFFFF69B4),
             ),
-            const SizedBox(height: 24),
-
-            // 🌸 Smooth grid buttons
-            Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                    "Tracker",
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    "Awareness",
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    "Doctors",
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Your Pregnancy Journey",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF333333),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Track your journey month by month 💗",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: GridView.builder(
                 padding: const EdgeInsets.only(bottom: 12),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
-                  mainAxisSpacing: 18,
-                  crossAxisSpacing: 18,
-                  childAspectRatio: 1.2,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 1.1,
                 ),
                 itemCount: monthPages.length,
                 itemBuilder: (context, index) {
@@ -110,13 +183,13 @@ class PregnancyMonthsPage extends StatelessWidget {
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.pink.shade50,
-                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.pink.shade100.withOpacity(0.3),
-                            blurRadius: 6,
-                            offset: const Offset(2, 3),
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
@@ -124,21 +197,31 @@ class PregnancyMonthsPage extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              "Month $monthNumber",
-                              style: TextStyle(
-                                color: Colors.pink.shade800,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                            Container(
+                              width: 50,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFF69B4),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "$monthNumber",
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 8),
                             Text(
-                              "Tap to view 💗",
+                              "Month",
                               style: TextStyle(
-                                color: Colors.pink.shade400,
+                                color: Colors.grey.shade700,
                                 fontSize: 13,
-                                fontStyle: FontStyle.italic,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
@@ -149,23 +232,20 @@ class PregnancyMonthsPage extends StatelessWidget {
                 },
               ),
             ),
-
-            // 🌷 Footer
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Text(
-                "© 2025 Pregnancy Journey\nMade with 💗 for moms-to-be",
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 12,
-                  height: 1.4,
-                ),
-                textAlign: TextAlign.center,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0, bottom: 16.0),
+            child: Text(
+              "© 2025 Pregnancy Journey\nMade with 💗 for moms-to-be",
+              style: TextStyle(
+                color: Colors.grey.shade500,
+                fontSize: 11,
+                height: 1.4,
               ),
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 6),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

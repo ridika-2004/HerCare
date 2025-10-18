@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'main.dart';  // 👈 Import for color constants like kPrimaryDarkPink etc.
+import 'package:shared_preferences/shared_preferences.dart';
+import 'main.dart';
+import 'signup.dart' as signup; // for logout redirection
 
 // Feature Card Colors
 const Color kCardPeriodRed = Color(0xFFD84A62);
@@ -10,16 +12,81 @@ const Color kCardBreastRed = Color(0xFFDA566E);
 const Color kCardGamesPurple = Color(0xFF8B64CC);
 const Color kCardPodcastBlue = Color(0xFF5CA6D6);
 
-class HerCareHomePage extends StatelessWidget {
+class HerCareHomePage extends StatefulWidget {
   const HerCareHomePage({super.key});
 
+  @override
+  State<HerCareHomePage> createState() => _HerCareHomePageState();
+}
+
+class _HerCareHomePageState extends State<HerCareHomePage> {
+  String? userEmail;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userEmail = prefs.getString('userEmail');
+    });
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userEmail');
+    setState(() {
+      userEmail = null;
+    });
+
+    // Navigate to sign-up/login page
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const signup.SignUpScreen()),
+      (route) => false,
+    );
+  }
+
   final List<Map<String, dynamic>> landingFeatures = const [
-    {'title': 'Period Tracker', 'subtitle': 'Track your cycle status', 'icon': Icons.calendar_today_rounded, 'color': kCardPeriodRed},
-    {'title': 'Pregnancy Tracker', 'subtitle': 'Monitor growth, week by week.', 'icon': Icons.pregnant_woman_rounded, 'color': kCardPregnancyOrange},
-    {'title': 'Mental Health', 'subtitle': 'Meditations, journal & support', 'icon': Icons.self_improvement_rounded, 'color': kCardMentalTeal},
-    {'title': 'Breast Health Check', 'subtitle': 'Self-exam guide & detection', 'icon': Icons.visibility_rounded, 'color': kCardBreastRed},
-    {'title': 'Fun & Games', 'subtitle': 'Quizzes, puzzles & more', 'icon': Icons.gamepad_rounded, 'color': kCardGamesPurple},
-    {'title': 'Podcasts', 'subtitle': 'Listen to expert wellness adv...', 'icon': Icons.mic_external_on_rounded, 'color': kCardPodcastBlue},
+    {
+      'title': 'Period Tracker',
+      'subtitle': 'Track your cycle status',
+      'icon': Icons.calendar_today_rounded,
+      'color': kCardPeriodRed
+    },
+    {
+      'title': 'Pregnancy Tracker',
+      'subtitle': 'Monitor growth, week by week.',
+      'icon': Icons.pregnant_woman_rounded,
+      'color': kCardPregnancyOrange
+    },
+    {
+      'title': 'Mental Health',
+      'subtitle': 'Meditations, journal & support',
+      'icon': Icons.self_improvement_rounded,
+      'color': kCardMentalTeal
+    },
+    {
+      'title': 'Breast Health Check',
+      'subtitle': 'Self-exam guide & detection',
+      'icon': Icons.visibility_rounded,
+      'color': kCardBreastRed
+    },
+    {
+      'title': 'Fun & Games',
+      'subtitle': 'Quizzes, puzzles & more',
+      'icon': Icons.gamepad_rounded,
+      'color': kCardGamesPurple
+    },
+    {
+      'title': 'Podcasts',
+      'subtitle': 'Listen to expert wellness adv...',
+      'icon': Icons.mic_external_on_rounded,
+      'color': kCardPodcastBlue
+    },
   ];
 
   @override
@@ -34,19 +101,30 @@ class HerCareHomePage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
+        title: Text(
+          "HerCare",
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+          ),
+        ),
         actions: [
-          // Add this to your HerCareHomePage class (inside the actions of the AppBar)
+          // 👇 LOGIN / LOGOUT button based on user status
           TextButton(
             onPressed: () {
-              // Navigate to the SignUp screen
-              Navigator.pushNamed(context, '/signup'); // This will navigate to the SignUpScreen
+              if (userEmail != null) {
+                _logout(context);
+              } else {
+                Navigator.pushNamed(context, '/signup');
+              }
             },
             child: Text(
-              'Sign In',
-              style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+              userEmail != null ? 'Logout' : 'Sign In',
+              style: GoogleFonts.poppins(
+                  color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ),
-
           const Padding(
             padding: EdgeInsets.only(right: 16.0),
             child: Icon(Icons.settings_rounded, color: Colors.white, size: 28),
@@ -69,7 +147,10 @@ class HerCareHomePage extends StatelessWidget {
                     padding: EdgeInsets.fromLTRB(20, 25, 20, 10),
                     child: Text(
                       "Choose Your Focus Today",
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: kAppBarTextColor),
+                      style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: kAppBarTextColor),
                     ),
                   ),
                   _buildFeatureGrid(context),
@@ -84,7 +165,8 @@ class HerCareHomePage extends StatelessWidget {
         onPressed: () {},
         backgroundColor: kPrimaryDarkPink,
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text("Find a Doctor extended", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+        label: const Text("Find a Doctor",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
@@ -115,15 +197,27 @@ class HerCareHomePage extends StatelessWidget {
           color: kWhiteCardColor,
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 15, offset: const Offset(0, 5)),
+            BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 15,
+                offset: const Offset(0, 5)),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Welcome to HerCare 💖", style: GoogleFonts.poppins(color: kAppBarTextColor, fontSize: 24, fontWeight: FontWeight.bold)),
+            Text("Welcome to HerCare 💖",
+                style: GoogleFonts.poppins(
+                    color: kAppBarTextColor,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
-            Text("Your companion for complete wellness.", style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: 16)),
+            Text(
+                userEmail != null
+                    ? "Logged in as $userEmail"
+                    : "Your companion for complete wellness.",
+                style: GoogleFonts.poppins(
+                    color: Colors.grey[600], fontSize: 16)),
           ],
         ),
       ),
@@ -158,32 +252,20 @@ class HerCareHomePage extends StatelessWidget {
   }
 
   Widget _buildFeatureCard(
-      BuildContext context,
-      String title,
-      String subtitle,
-      IconData icon,
-      Color color,
-      ) {
+      BuildContext context, String title, String subtitle, IconData icon, Color color) {
     return GestureDetector(
       onTap: () {
         if (title == 'Period Tracker') {
-          Navigator.pushNamed(context, '/period');   // ✅ Navigate to Period Tracker
-        }
-
-        // Later, you can add similar conditions:
-         else if (title == 'Pregnancy Tracker') {
+          Navigator.pushNamed(context, '/period');
+        } else if (title == 'Pregnancy Tracker') {
           Navigator.pushNamed(context, '/pregnancy');
-         }
-         else if (title == 'Breast Health Check') {
+        } else if (title == 'Breast Health Check') {
           Navigator.pushNamed(context, '/breast');
-         }
-        else if (title == 'Mental Health') {
+        } else if (title == 'Mental Health') {
           Navigator.pushNamed(context, '/mental');
-        }
-        else if (title == 'Podcasts') {
+        } else if (title == 'Podcasts') {
           Navigator.pushNamed(context, '/podcast');
         }
-
       },
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -206,26 +288,17 @@ class HerCareHomePage extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
-                    color: Colors.white,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                Text(title,
+                    style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        color: Colors.white)),
                 const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: Colors.white70,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                Text(subtitle,
+                    style: GoogleFonts.poppins(
+                        fontSize: 12, color: Colors.white70),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis),
               ],
             ),
           ],
@@ -233,10 +306,9 @@ class HerCareHomePage extends StatelessWidget {
       ),
     );
   }
-
 }
 
-// Wave clipper
+// Wave clipper remains same
 class WaveClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {

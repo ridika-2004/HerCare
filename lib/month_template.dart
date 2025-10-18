@@ -32,146 +32,268 @@ class _MonthPageTemplateState extends State<MonthPageTemplate> {
     double progress = widget.monthNumber / 9;
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFFFE6EC), Color(0xFFFFF9FB)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      backgroundColor: const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        title: const Text(
+          "HerCare",
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+            letterSpacing: 0.5,
           ),
         ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Header
-                const Text(
-                  "Pregnancy Journey 🤰",
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFFF6F61),
-                  ),
-                  textAlign: TextAlign.center,
+        centerTitle: true,
+        backgroundColor: const Color(0xFFFF69B4),
+        elevation: 0,
+        toolbarHeight: 70,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Pink header section
+            Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFF69B4),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(
+                      "Tracker",
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      "Awareness",
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      "Doctors",
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 6),
-                const Text(
-                  "Your body, your baby, your care 💕",
-                  style: TextStyle(fontSize: 16, color: Colors.black54),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
+              ),
+            ),
 
-                // Progress Tracker
-                _buildCard(
-                  title: "Progress Tracker",
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: LinearProgressIndicator(
-                          value: progress,
-                          color: const Color(0xFFFF6F61),
-                          backgroundColor: const Color(0xFFFFE0E0),
-                          minHeight: 10,
+            const SizedBox(height: 20),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Month Header Card
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFF69B4), Color(0xFFFF8FAB)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFF69B4).withOpacity(0.3),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Your Pregnancy Journey",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white70,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Month ${widget.monthNumber} of 9",
+                          style: const TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: LinearProgressIndicator(
+                            value: progress,
+                            color: Colors.white,
+                            backgroundColor: Colors.white.withOpacity(0.3),
+                            minHeight: 8,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "${(progress * 100).toInt()}% Complete",
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Tip of the Month
+                  _buildCard(
+                    title: "💡 Tip of the Month",
+                    child: Text(
+                      widget.tip,
+                      style: TextStyle(
+                        height: 1.6,
+                        fontSize: 15,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Daily Nutrition Section
+                  const Text(
+                    "Daily Nutrition",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF333333),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: widget.foods
+                          .map((food) => _FoodItem(
+                                icon: food['icon']!,
+                                label: food['label']!,
+                              ))
+                          .toList(),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Daily Checklist
+                  _buildCard(
+                    title: "✅ Daily Checklist",
+                    child: Column(
+                      children: List.generate(widget.checklist.length, (index) {
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          decoration: BoxDecoration(
+                            color: checkedItems[index]
+                                ? const Color(0xFFFFE6F0)
+                                : Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: CheckboxListTile(
+                            value: checkedItems[index],
+                            onChanged: (value) {
+                              setState(() {
+                                checkedItems[index] = value ?? false;
+                              });
+                            },
+                            title: Text(
+                              widget.checklist[index],
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.grey.shade800,
+                                decoration: checkedItems[index]
+                                    ? TextDecoration.lineThrough
+                                    : null,
+                              ),
+                            ),
+                            activeColor: const Color(0xFFFF69B4),
+                            controlAffinity: ListTileControlAffinity.leading,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Contact Doctor Button
+                  Container(
+                    width: double.infinity,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFF69B4), Color(0xFFFF8FAB)],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFF69B4).withOpacity(0.4),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Text("Month ${widget.monthNumber} of 9",
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87)),
-                    ],
-                  ),
-                ),
-
-                // Tip of the Month
-                _buildCard(
-                  title: "Tip of the Month 💡",
-                  child: Text(
-                    widget.tip,
-                    style: const TextStyle(height: 1.5),
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                // Daily Nutrition
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Daily Nutrition 🍽️",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: widget.foods
-                        .map((food) => _FoodItem(
-                              icon: food['icon']!,
-                              label: food['label']!,
-                            ))
-                        .toList(),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Daily Checklist (Dynamic)
-                _buildCard(
-                  title: "Daily Checklist ✅",
-                  child: Column(
-                    children: List.generate(widget.checklist.length, (index) {
-                      return CheckboxListTile(
-                        value: checkedItems[index],
-                        onChanged: (value) {
-                          setState(() {
-                            checkedItems[index] = value ?? false;
-                          });
-                        },
-                        title: Text(widget.checklist[index]),
-                        activeColor: const Color(0xFFFF6F61),
-                        controlAffinity: ListTileControlAffinity.leading,
-                      );
-                    }),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Contact Doctor
-                Center(
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFF6F61),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 28, vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                      onPressed: () {},
+                      icon: const Icon(Icons.local_hospital_rounded,
+                          color: Colors.white, size: 24),
+                      label: const Text(
+                        "Contact Doctor",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                      elevation: 3,
-                    ),
-                    onPressed: () {},
-                    icon: const Icon(Icons.local_hospital, color: Colors.white),
-                    label: const Text(
-                      "Contact Doctor",
-                      style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-              ],
+
+                  const SizedBox(height: 32),
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -180,26 +302,31 @@ class _MonthPageTemplateState extends State<MonthPageTemplate> {
   // Reusable Card
   static Widget _buildCard({required String title, required Widget child}) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.pink.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
-            offset: const Offset(0, 5),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF333333),
+            ),
+          ),
+          const SizedBox(height: 12),
           child,
         ],
       ),
@@ -215,28 +342,31 @@ class _FoodItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
+    return Container(
       margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF0E6),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.pink.withOpacity(0.05),
-            blurRadius: 4,
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         children: [
-          Text(icon, style: const TextStyle(fontSize: 26)),
-          const SizedBox(height: 6),
+          Text(icon, style: const TextStyle(fontSize: 32)),
+          const SizedBox(height: 8),
           Text(
             label,
-            style: const TextStyle(fontSize: 14, color: Colors.black87),
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade700,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),

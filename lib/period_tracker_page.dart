@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import './models/cycle_data.dart';
 import './models/symptom_tracker.dart';
+import './services/storage_service.dart';
 import './widgets/tracker_tab.dart';
 import './widgets/awareness_tab.dart';
 import './widgets/doctors_tab.dart';
@@ -16,28 +17,35 @@ class PeriodTrackerPage extends StatefulWidget {
 class _PeriodTrackerPageState extends State<PeriodTrackerPage>
     with TickerProviderStateMixin {
   late TabController _tabController;
-  CycleData _cycleData = CycleData(
-    lastPeriodDate: DateTime.now().subtract(Duration(days: 5)),
-  );
+  CycleData _cycleData = CycleData();
   SymptomTracker _symptomTracker = SymptomTracker();
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _loadData();
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  void _updateCycleData(CycleData newCycleData) {
+  Future<void> _loadData() async {
     setState(() {
-      _cycleData = newCycleData;
+      _isLoading = true;
+    });
+    
+    final cycleData = await StorageService.loadCycleData();
+    setState(() {
+      _cycleData = cycleData;
+      _isLoading = false;
     });
   }
+
+void _updateCycleData(CycleData newCycleData) async {
+  setState(() {
+    _cycleData = newCycleData; // Replace the entire instance
+  });
+  await StorageService.saveCycleData(newCycleData);
+}
 
   void _updateSymptomTracker(SymptomTracker newSymptomTracker) {
     setState(() {
@@ -46,7 +54,24 @@ class _PeriodTrackerPageState extends State<PeriodTrackerPage>
   }
 
   @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: AppConstants.backgroundColor,
+        body: Center(
+          child: CircularProgressIndicator(
+            color: AppConstants.primaryColor,
+          ),
+        ),
+      );
+    }
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(

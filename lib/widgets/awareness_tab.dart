@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 
 class AwarenessTab extends StatelessWidget {
-  const AwarenessTab({Key? key}) : super(key: key);
+  const AwarenessTab({super.key});
   
   @override
   Widget build(BuildContext context) {

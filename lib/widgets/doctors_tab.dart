@@ -3,7 +3,7 @@ import '../models/doctor.dart';
 import '../constants/app_constants.dart';
 
 class DoctorsTab extends StatelessWidget {
-  DoctorsTab({Key? key}) : super(key: key);
+  DoctorsTab({super.key});
   
   final List<Doctor> doctors = [
     Doctor(

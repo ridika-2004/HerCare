@@ -7,10 +7,10 @@ class SymptomTrackerWidget extends StatelessWidget {
   final Function(SymptomTracker) onSymptomTrackerChanged;
   
   const SymptomTrackerWidget({
-    Key? key,
+    super.key,
     required this.symptomTracker,
     required this.onSymptomTrackerChanged,
-  }) : super(key: key);
+  });
   
   void _toggleSymptom(String symptom) {
     final newTracker = SymptomTracker();

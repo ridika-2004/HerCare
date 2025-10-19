@@ -6,9 +6,9 @@ class CycleStatusCard extends StatelessWidget {
   final CycleData cycleData;
   
   const CycleStatusCard({
-    Key? key,
+    super.key,
     required this.cycleData,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {

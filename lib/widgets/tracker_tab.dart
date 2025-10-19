@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/cycle_data.dart';
 import '../models/symptom_tracker.dart';
-import './tab_widgets/cycle_input_section.dart';
+import './tab_widgets/period_date_input.dart';
 import './tab_widgets/cycle_status_card.dart';
 import './tab_widgets/calendar_section.dart';
 import './tab_widgets/symptom_tracker.dart';
@@ -17,12 +17,12 @@ class TrackerTab extends StatefulWidget {
   final Function(SymptomTracker) onSymptomTrackerChanged;
   
   const TrackerTab({
-    Key? key,
+    super.key,
     required this.cycleData,
     required this.symptomTracker,
     required this.onCycleDataChanged,
     required this.onSymptomTrackerChanged,
-  }) : super(key: key);
+  });
   
   @override
   _TrackerTabState createState() => _TrackerTabState();
@@ -39,10 +39,10 @@ class _TrackerTabState extends State<TrackerTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CycleInputSection(
-              cycleData: widget.cycleData,
-              onCycleDataChanged: widget.onCycleDataChanged,
-            ),
+            PeriodDateInput(
+  cycleData: widget.cycleData,
+  onCycleDataChanged: widget.onCycleDataChanged,
+),
             SizedBox(height: 24),
             CycleStatusCard(cycleData: widget.cycleData),
             SizedBox(height: 24),
@@ -67,30 +67,32 @@ class _TrackerTabState extends State<TrackerTab> {
     );
   }
   
-  Widget _buildQuickStats() {
-    return Row(
-      children: [
-        CommonWidgets.buildStatCard(
-          'Last Period', 
-          DateFormatter.formatDate(widget.cycleData.lastPeriodDate, 'MMM dd'), 
-          Color(0xFFE91E63),
-        ),
-        SizedBox(width: 12),
-        CommonWidgets.buildStatCard(
-          'Next Period', 
-          DateFormatter.formatDate(widget.cycleData.nextPeriodDate, 'MMM dd'), 
-          Color(0xFFC2185B),
-        ),
-        SizedBox(width: 12),
-        CommonWidgets.buildStatCard(
-          'Cycle Length', 
-          '${widget.cycleData.cycleLength} days', 
-          Color(0xFFAD1457),
-        ),
-      ],
-    );
-  }
-  
+Widget _buildQuickStats() {
+  return Row(
+    children: [
+      CommonWidgets.buildStatCard(
+        'Last Period', 
+        widget.cycleData.lastPeriodDate != null 
+            ? DateFormatter.formatDate(widget.cycleData.lastPeriodDate!, 'MMM dd')
+            : 'Not set', 
+        Color(0xFFE91E63),
+      ),
+      SizedBox(width: 12),
+      CommonWidgets.buildStatCard(
+        'Next Period', 
+        DateFormatter.formatDate(widget.cycleData.nextPeriodDate, 'MMM dd'), 
+        Color(0xFFC2185B),
+      ),
+      SizedBox(width: 12),
+      CommonWidgets.buildStatCard(
+        'Cycle Length', 
+        '${widget.cycleData.cycleLength} days', 
+        Color(0xFFAD1457),
+      ),
+    ],
+  );
+}
+
 Widget _buildMusicRelaxationSection() {
   List<RelaxationTrack> relaxationTracks = [
     RelaxationTrack(title: 'Calm Meditation', duration: '10 min'),

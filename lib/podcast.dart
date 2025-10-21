@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-// --- Theme Colors (Matching main.dart for consistency) ---
-const Color kPrimaryDarkPink = Color(0xFFE9386D);
-const Color kAppBarTextColor = Color.fromARGB(255, 74, 3, 40);
-const Color kBackgroundColor = Color(0xFFFFFAFD);
+import 'constants/colors.dart';
 
 
 // ====================================================================

@@ -4,12 +4,10 @@ import 'dart:convert';
 import 'main.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'constants/colors.dart';
 
 // --- Theme Colors ---
-const Color kPrimaryDarkPink = Color(0xFFE9386D);
-const Color kAppBarTextColor = Color.fromARGB(255, 74, 3, 40);
-const Color kBackgroundColor = Color(0xFFFFFAFD);
-const Color kInputFillColor = Color(0xFFF0E4E7);
+
 
 // ====================================================================
 // 1. HOME SCREEN (After successful login/signup)

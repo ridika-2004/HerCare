@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'homepage.dart';                  // Home / dashboard
+import 'home/homepage.dart';
 import 'period_tracker_page.dart';
-import 'breast_cancer.dart';// Your PeriodTrackerPage
+import 'breast_cancer.dart';
 import 'pregnancy.dart';
 import 'mentalhealth.dart';
 import 'podcast.dart';
 import 'signup.dart';
-import 'history/history_page.dart'; // Add this import
-
-// --- Theme Colors ---
-const Color kPrimaryDarkPink = Color(0xFFE9386D);
-const Color kPrimaryLightPink = Color(0xFFF794B2);
-const Color kBackgroundColor = Color(0xFFFFFAFD);
-const Color kAppBarTextColor = Color(0xFF4A4A4A);
-const Color kWhiteCardColor = Color(0xFFFFFFFF);
+import 'history/history_page.dart';
+import 'constants/colors.dart'; // Add this import
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,13 +35,12 @@ class HerCareApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: GoogleFonts.poppins().fontFamily,
         colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.pink).copyWith(
-          primary: kPrimaryDarkPink,
+          primary: kPrimaryDarkPink, // Now from constants/colors.dart
           secondary: kPrimaryDarkPink,
           surface: kBackgroundColor,
         ),
       ),
       routes: {
-        // ❌ REMOVE this line: '/': (context) => isLoggedIn ? const MainNavigatorScreen() : const SignUpScreen(),
         '/period': (context) => PeriodTrackerPage(),
         '/breast': (context) => BreastCancerCheckApp(),
         '/pregnancy': (context) => PregnancyApp(),
@@ -56,11 +49,11 @@ class HerCareApp extends StatelessWidget {
         '/signup': (context) => const SignUpScreen(),
         '/history': (context) => const HistoryPage(),
       },
-      // ✅ Keep only the home property
       home: isLoggedIn ? const MainNavigatorScreen() : const SignUpScreen(),
     );
   }
 }
+
 class MainNavigatorScreen extends StatefulWidget {
   const MainNavigatorScreen({super.key});
 
@@ -71,16 +64,15 @@ class MainNavigatorScreen extends StatefulWidget {
 class _MainNavigatorScreenState extends State<MainNavigatorScreen> {
   int _selectedIndex = 0;
 
-  // Updated to include History page
   final List<Widget> _widgetOptions = <Widget>[
     const HerCareHomePage(),
     const Center(
       child: Text(
         'Recommended Doctors Screen (Coming Soon)',
-        style: TextStyle(color: kAppBarTextColor),
+        style: TextStyle(color: kAppBarTextColor), // Now from constants/colors.dart
       ),
     ),
-    const HistoryPage(), // Add History as the third tab
+    const HistoryPage(),
   ];
 
   @override
@@ -91,10 +83,10 @@ class _MainNavigatorScreenState extends State<MainNavigatorScreen> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.medical_services_rounded), label: 'Doctors'),
-          BottomNavigationBarItem(icon: Icon(Icons.history_rounded), label: 'History'), // Add History tab
+          BottomNavigationBarItem(icon: Icon(Icons.history_rounded), label: 'History'),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: kPrimaryDarkPink,
+        selectedItemColor: kPrimaryDarkPink, // Now from constants/colors.dart
         unselectedItemColor: Colors.grey,
         onTap: (index) => setState(() => _selectedIndex = index),
       ),

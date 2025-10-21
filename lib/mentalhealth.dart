@@ -1,21 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-// --- Theme Colors (Defined Locally for independence, matching main.dart) ---
-const Color kPrimaryDarkPink = Color(0xFFE9386D);
-const Color kPrimaryLightPink = Color.fromARGB(255, 212, 178, 189);
-const Color kBackgroundColor = Color(0xFFFFFAFD);
-const Color kAppBarTextColor = Color.fromARGB(255, 74, 3, 40);
-const Color kWhiteCardColor = Color.fromARGB(255, 243, 219, 237);
-const Color kSectionGrey = Color.fromARGB(255, 255, 218, 247);
-
-// Feature Card Colors (The 'Girly' Theme Palette)
-const Color kCardPeriodRed = Color(0xFFD84A62);
-const Color kCardPregnancyOrange = Color(0xFFF58461);
-const Color kCardMentalTeal = Color(0xFF63C2C0); // Teal
-const Color kCardBreastRed = Color(0xFFDA566E);
-const Color kCardGamesPurple = Color(0xFF8B64CC); // Purple
-const Color kCardPodcastBlue = Color(0xFF5CA6D6); // Blue
+import 'constants/colors.dart';
 
 
 // ====================================================================

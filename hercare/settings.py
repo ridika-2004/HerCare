@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'users',
     'corsheaders',
     'breast',
+    'pregnancy',
 ]
 
 MONGO_URI = "mongodb://localhost:27017/"

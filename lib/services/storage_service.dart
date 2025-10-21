@@ -86,7 +86,7 @@ class StorageService {
       }
     } catch (e) {
       print('❌ Error saving cycle data: $e');
-      throw e;
+      rethrow;
     }
   }
 

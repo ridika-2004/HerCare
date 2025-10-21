@@ -5,64 +5,10 @@ import 'main.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'constants/colors.dart';
-
-// --- Theme Colors ---
-
+import 'services/storage_service.dart'; // ADD THIS IMPORT
 
 // ====================================================================
-// 1. HOME SCREEN (After successful login/signup)
-// ====================================================================
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kBackgroundColor,
-      appBar: AppBar(
-        title: Text(
-          'Welcome Home! ✨',
-          style: GoogleFonts.poppins(
-            color: kAppBarTextColor,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: kPrimaryDarkPink.withOpacity(0.1),
-        elevation: 0,
-        automaticallyImplyLeading: false,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.check_circle_outline, size: 100, color: kPrimaryDarkPink),
-            const SizedBox(height: 20),
-            Text(
-              'Authentication Successful!',
-              style: GoogleFonts.poppins(
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-                color: kAppBarTextColor,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'You are now on the main app page.',
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                color: kAppBarTextColor.withOpacity(0.7),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ====================================================================
-// 2. SIGN UP / LOGIN SCREEN
+// SIGN UP / LOGIN SCREEN
 // ====================================================================
 
 class SignUpScreen extends StatefulWidget {
@@ -75,6 +21,7 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLogin = true;
+  bool _isLoading = false;
 
   // Controllers
   final TextEditingController _nameController = TextEditingController();
@@ -87,12 +34,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
   // --------------------------------------------------------------------
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
       final name = _nameController.text.trim();
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
       final confirmPassword = _confirmPasswordController.text.trim();
 
-      // Change 127.0.0.1 to 10.0.2.2 if testing on Android Emulator
+      // For Android emulator, use 10.0.2.2 instead of 127.0.0.1
       final url = _isLogin
           ? Uri.parse('http://127.0.0.1:8000/user/login/')
           : Uri.parse('http://127.0.0.1:8000/user/signup/');
@@ -115,32 +66,60 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
         final data = json.decode(response.body);
 
-// ...
+        if (!mounted) return;
 
-if (response.statusCode == 200 && data["status"] == "success") {
-  if (!mounted) return;
+        setState(() {
+          _isLoading = false;
+        });
 
-  // 🩷 Save login info locally
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('userEmail', _emailController.text.trim());
+        if (response.statusCode == 200 && data["status"] == "success") {
+          // ✅ CORRECTED: Save user email to SharedPreferences
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('userEmail', email); // Use the email variable
+          await prefs.setBool('isLoggedIn', true);
+          await prefs.setString('userName', data["data"]?["name"] ?? name);
 
-  print("✅ Login success — saved: ${_emailController.text.trim()}");
+          // ✅ CORRECTED: Set email in StorageService for period tracker
+          StorageService.userEmail = email;
+          
+          print("✅ ${_isLogin ? 'Login' : 'Signup'} success — saved: $email");
 
-  // 🏠 Navigate to the main screen
-  Navigator.of(context).pushReplacement(
-    MaterialPageRoute(builder: (context) => const MainNavigatorScreen()),
-  );
-} else {
-  if (!mounted) return;
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(data["message"] ?? "Authentication failed")),
-  );
-}
+          // Navigate to main app
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const MainNavigatorScreen()),
+          );
+
+        } else {
+          // Handle different error cases
+          String errorMessage = data["message"] ?? "Authentication failed";
+          if (response.statusCode == 400) {
+            errorMessage = "Invalid email or password format";
+          } else if (response.statusCode == 401) {
+            errorMessage = "Invalid credentials";
+          } else if (response.statusCode == 500) {
+            errorMessage = "Server error. Please try again later.";
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
 
       } catch (e) {
         if (!mounted) return;
+        
+        setState(() {
+          _isLoading = false;
+        });
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $e")),
+          SnackBar(
+            content: Text("Network error: Please check your connection"),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -182,7 +161,7 @@ if (response.statusCode == 200 && data["status"] == "success") {
               if (value == null || value.isEmpty) {
                 return 'Please enter your $labelText.';
               }
-              if (labelText == 'Email' && !value.contains('@')) {
+              if (labelText.toLowerCase().contains('email') && !value.contains('@')) {
                 return 'Please enter a valid email.';
               }
               if (isPassword && value.length < 6) {
@@ -292,26 +271,58 @@ if (response.statusCode == 200 && data["status"] == "success") {
                     SizedBox(
                       width: double.infinity,
                       height: 55,
-                      child: ElevatedButton(
-                        onPressed: _submitForm,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: kPrimaryDarkPink,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          elevation: 8,
-                          shadowColor: kPrimaryDarkPink.withOpacity(0.5),
-                        ),
-                        child: Text(
-                          _isLogin ? 'LOG IN' : 'SIGN UP',
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                      ),
+                      child: _isLoading
+                          ? ElevatedButton(
+                              onPressed: null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: kPrimaryDarkPink.withOpacity(0.7),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    'PLEASE WAIT...',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : ElevatedButton(
+                              onPressed: _submitForm,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: kPrimaryDarkPink,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                elevation: 8,
+                                shadowColor: kPrimaryDarkPink.withOpacity(0.5),
+                              ),
+                              child: Text(
+                                _isLogin ? 'LOG IN' : 'SIGN UP',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                            ),
                     ),
                   ],
                 ),
@@ -320,26 +331,27 @@ if (response.statusCode == 200 && data["status"] == "success") {
               const SizedBox(height: 20),
 
               // Switch Mode Button
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    _isLogin = !_isLogin;
-                    _nameController.clear();
-                    _emailController.clear();
-                    _passwordController.clear();
-                    _confirmPasswordController.clear();
-                  });
-                },
-                child: Text(
-                  _isLogin
-                      ? 'Don\'t have an account? Sign Up'
-                      : 'Already have an account? Log In',
-                  style: GoogleFonts.poppins(
-                    color: kPrimaryDarkPink,
-                    fontWeight: FontWeight.w600,
+              if (!_isLoading)
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _isLogin = !_isLogin;
+                      _nameController.clear();
+                      _emailController.clear();
+                      _passwordController.clear();
+                      _confirmPasswordController.clear();
+                    });
+                  },
+                  child: Text(
+                    _isLogin
+                        ? 'Don\'t have an account? Sign Up'
+                        : 'Already have an account? Log In',
+                    style: GoogleFonts.poppins(
+                      color: kPrimaryDarkPink,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-              ),
 
               SizedBox(height: screenHeight * 0.05),
             ],

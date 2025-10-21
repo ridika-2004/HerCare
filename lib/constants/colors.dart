@@ -14,3 +14,4 @@ const Color kAppBarTextColor = Color(0xFF4A4A4A);
 const Color kWhiteCardColor = Color(0xFFFFFFFF);
 const Color kSectionGrey = Color.fromARGB(255, 255, 218, 247);
 const Color kInputFillColor = Color(0xFFF0E4E7);
+

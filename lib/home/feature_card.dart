@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../history/history_manager.dart';
-import '../constants/colors.dart';
 
 class FeatureCard extends StatelessWidget {
   final Map<String, dynamic> feature;

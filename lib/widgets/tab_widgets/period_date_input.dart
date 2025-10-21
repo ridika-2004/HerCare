@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/cycle_data.dart';
 import '../../services/date_formatter.dart';
 import '../../constants/app_constants.dart';
+import '../../services/storage_service.dart';
 
 class PeriodDateInput extends StatefulWidget {
   final CycleData cycleData;
@@ -134,7 +135,7 @@ void _updateCycleInfo() {
   }
 }
 
-void _savePeriod() {
+void _savePeriod() async {
   if (_selectedStartDate == null || _selectedEndDate == null) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -155,41 +156,71 @@ void _savePeriod() {
     return;
   }
 
-  // FIX: Create a NEW CycleData instance instead of modifying the existing one
-  final newCycleData = CycleData(
-    periodHistory: List.from(widget.cycleData.periodHistory),
-    predictedNextPeriod: widget.cycleData.predictedNextPeriod,
-    predictedCycleLength: widget.cycleData.predictedCycleLength,
-  );
-  
-  // Add the new period record
-  newCycleData.addPeriodRecord(_selectedStartDate!, _selectedEndDate!);
-
-  // Call the callback with the NEW instance
-  widget.onCycleDataChanged(newCycleData);
-
-  // Show success message
-  String message = 'Period saved successfully!';
-  if (_cycleInfoText != null) {
-    message += '\n$_cycleInfoText';
-  } else if (_isFirstPeriod) {
-    message += '\nThis is your first recorded period. Cycle length will be calculated after your next period.';
-  }
-
+  // Show loading indicator
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      content: Text(message),
+      content: Row(
+        children: [
+          CircularProgressIndicator(color: Colors.white),
+          SizedBox(width: 12),
+          Text('Saving period...'),
+        ],
+      ),
       backgroundColor: AppConstants.primaryColor,
-      duration: Duration(seconds: 3),
     ),
   );
 
-  // Reset form
-  setState(() {
-    _selectedStartDate = null;
-    _selectedEndDate = null;
-    _cycleInfoText = null;
-  });
+  try {
+    // Create new CycleData instance
+    final newCycleData = CycleData(
+      periodHistory: List.from(widget.cycleData.periodHistory),
+      predictedNextPeriod: widget.cycleData.predictedNextPeriod,
+      predictedCycleLength: widget.cycleData.predictedCycleLength,
+    );
+    
+    // Add the new period record
+    newCycleData.addPeriodRecord(_selectedStartDate!, _selectedEndDate!);
+
+    // Save to storage (which will sync with backend)
+    await StorageService.saveCycleData(newCycleData);
+
+    // Update UI
+    widget.onCycleDataChanged(newCycleData);
+
+    // Show success message
+    String message = 'Period saved successfully!';
+    if (_cycleInfoText != null) {
+      message += '\n$_cycleInfoText';
+    } else if (_isFirstPeriod) {
+      message += '\nThis is your first recorded period. Cycle length will be calculated after your next period.';
+    }
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppConstants.primaryColor,
+        duration: Duration(seconds: 3),
+      ),
+    );
+
+    // Reset form
+    setState(() {
+      _selectedStartDate = null;
+      _selectedEndDate = null;
+      _cycleInfoText = null;
+    });
+
+  } catch (e) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Failed to save period: $e'),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
 }
 
   @override

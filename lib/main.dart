@@ -9,17 +9,26 @@ import 'mentalhealth.dart';
 import 'podcast.dart';
 import 'signup.dart';
 import 'history/history_page.dart';
-import 'constants/colors.dart'; // Add this import
+import 'constants/colors.dart';
+import 'services/storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Load user preferences and email
   final prefs = await SharedPreferences.getInstance();
   final savedEmail = prefs.getString('userEmail');
+  final isLoggedIn = savedEmail != null && savedEmail.isNotEmpty;
 
   print("🔍 Startup — Found saved email: $savedEmail");
+  print("🔍 Startup — User is logged in: $isLoggedIn");
 
-  runApp(HerCareApp(isLoggedIn: savedEmail != null));
+  // Initialize StorageService with user email
+  if (isLoggedIn) {
+    await StorageService.loadUserEmail();
+  }
+
+  runApp(HerCareApp(isLoggedIn: isLoggedIn));
 }
 
 class HerCareApp extends StatelessWidget {
@@ -35,7 +44,7 @@ class HerCareApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: GoogleFonts.poppins().fontFamily,
         colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.pink).copyWith(
-          primary: kPrimaryDarkPink, // Now from constants/colors.dart
+          primary: kPrimaryDarkPink,
           secondary: kPrimaryDarkPink,
           surface: kBackgroundColor,
         ),
@@ -69,15 +78,45 @@ class _MainNavigatorScreenState extends State<MainNavigatorScreen> {
     const Center(
       child: Text(
         'Recommended Doctors Screen (Coming Soon)',
-        style: TextStyle(color: kAppBarTextColor), // Now from constants/colors.dart
+        style: TextStyle(color: kAppBarTextColor),
       ),
     ),
     const HistoryPage(),
   ];
 
+  // Add logout functionality
+  void _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userEmail');
+    await prefs.setBool('isLoggedIn', false);
+    await StorageService.clearData();
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const SignUpScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'HerCare',
+          style: GoogleFonts.poppins(
+            color: kAppBarTextColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: kBackgroundColor,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout, color: kPrimaryDarkPink),
+            onPressed: _logout,
+            tooltip: 'Logout',
+          ),
+        ],
+      ),
       body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -86,7 +125,7 @@ class _MainNavigatorScreenState extends State<MainNavigatorScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.history_rounded), label: 'History'),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: kPrimaryDarkPink, // Now from constants/colors.dart
+        selectedItemColor: kPrimaryDarkPink,
         unselectedItemColor: Colors.grey,
         onTap: (index) => setState(() => _selectedIndex = index),
       ),

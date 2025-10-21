@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'main.dart';
 import 'signup.dart' as signup; // for logout redirection
+import 'history/history_manager.dart'; // Add this import for history tracking
 
 // Feature Card Colors
 const Color kCardPeriodRed = Color(0xFFD84A62);
@@ -50,44 +51,88 @@ class _HerCareHomePageState extends State<HerCareHomePage> {
     );
   }
 
-  final List<Map<String, dynamic>> landingFeatures = const [
+  // Updated to include category and emoji icons for history tracking
+  final List<Map<String, dynamic>> landingFeatures = [
     {
       'title': 'Period Tracker',
       'subtitle': 'Track your cycle status',
       'icon': Icons.calendar_today_rounded,
-      'color': kCardPeriodRed
+      'emoji': '📅', // For history tracking
+      'color': kCardPeriodRed,
+      'category': 'Menstrual Health',
+      'route': '/period',
     },
     {
       'title': 'Pregnancy Tracker',
       'subtitle': 'Monitor growth, week by week.',
       'icon': Icons.pregnant_woman_rounded,
-      'color': kCardPregnancyOrange
+      'emoji': '🤰', // For history tracking
+      'color': kCardPregnancyOrange,
+      'category': 'Pregnancy',
+      'route': '/pregnancy',
     },
     {
       'title': 'Mental Health',
       'subtitle': 'Meditations, journal & support',
       'icon': Icons.self_improvement_rounded,
-      'color': kCardMentalTeal
+      'emoji': '🧠', // For history tracking
+      'color': kCardMentalTeal,
+      'category': 'Mental Wellness',
+      'route': '/mental',
     },
     {
       'title': 'Breast Health Check',
       'subtitle': 'Self-exam guide & detection',
       'icon': Icons.visibility_rounded,
-      'color': kCardBreastRed
+      'emoji': '🎗️', // For history tracking
+      'color': kCardBreastRed,
+      'category': 'Cancer Awareness',
+      'route': '/breast',
     },
     {
       'title': 'Fun & Games',
       'subtitle': 'Quizzes, puzzles & more',
       'icon': Icons.gamepad_rounded,
-      'color': kCardGamesPurple
+      'emoji': '🎮', // For history tracking
+      'color': kCardGamesPurple,
+      'category': 'Education',
+      'route': '', // No route yet
     },
     {
       'title': 'Podcasts',
       'subtitle': 'Listen to expert wellness adv...',
       'icon': Icons.mic_external_on_rounded,
-      'color': kCardPodcastBlue
+      'emoji': '🎧', // For history tracking
+      'color': kCardPodcastBlue,
+      'category': 'Education',
+      'route': '/podcast',
     },
   ];
+
+  // Method to handle feature card taps with history tracking
+  void _onFeatureTap(Map<String, dynamic> feature, BuildContext context) {
+    // Track the visit in history
+    HistoryManager().addHistory(
+      feature['title'] as String,
+      feature['emoji'] as String,
+      feature['category'] as String,
+    );
+
+    // Navigate to the appropriate route
+    final String route = feature['route'] as String;
+    if (route.isNotEmpty) {
+      Navigator.pushNamed(context, route);
+    } else {
+      // Show coming soon for features without routes
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${feature['title']} - Coming Soon!'),
+          backgroundColor: kPrimaryDarkPink,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -162,7 +207,16 @@ class _HerCareHomePageState extends State<HerCareHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () {
+          // Track doctor search in history
+          HistoryManager().addHistory(
+            'Find a Doctor',
+            '👩‍⚕️',
+            'Healthcare',
+          );
+          // Navigate to doctors tab or page
+          // You can implement this based on your navigation structure
+        },
         backgroundColor: kPrimaryDarkPink,
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text("Find a Doctor",
@@ -239,42 +293,23 @@ class _HerCareHomePageState extends State<HerCareHomePage> {
         itemCount: landingFeatures.length,
         itemBuilder: (context, index) {
           final feature = landingFeatures[index];
-          return _buildFeatureCard(
-            context,
-            feature['title'] as String,
-            feature['subtitle'] as String,
-            feature['icon'] as IconData,
-            feature['color'] as Color,
-          );
+          return _buildFeatureCard(context, feature);
         },
       ),
     );
   }
 
-  Widget _buildFeatureCard(
-      BuildContext context, String title, String subtitle, IconData icon, Color color) {
+  Widget _buildFeatureCard(BuildContext context, Map<String, dynamic> feature) {
     return GestureDetector(
-      onTap: () {
-        if (title == 'Period Tracker') {
-          Navigator.pushNamed(context, '/period');
-        } else if (title == 'Pregnancy Tracker') {
-          Navigator.pushNamed(context, '/pregnancy');
-        } else if (title == 'Breast Health Check') {
-          Navigator.pushNamed(context, '/breast');
-        } else if (title == 'Mental Health') {
-          Navigator.pushNamed(context, '/mental');
-        } else if (title == 'Podcasts') {
-          Navigator.pushNamed(context, '/podcast');
-        }
-      },
+      onTap: () => _onFeatureTap(feature, context),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color,
+          color: feature['color'] as Color,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.4),
+              color: (feature['color'] as Color).withOpacity(0.4),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),
@@ -284,17 +319,17 @@ class _HerCareHomePageState extends State<HerCareHomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(icon, color: Colors.white, size: 48),
+            Icon(feature['icon'] as IconData, color: Colors.white, size: 48),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
+                Text(feature['title'] as String,
                     style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w700,
                         fontSize: 16,
                         color: Colors.white)),
                 const SizedBox(height: 4),
-                Text(subtitle,
+                Text(feature['subtitle'] as String,
                     style: GoogleFonts.poppins(
                         fontSize: 12, color: Colors.white70),
                     maxLines: 2,

@@ -8,6 +8,7 @@ import 'pregnancy.dart';
 import 'mentalhealth.dart';
 import 'podcast.dart';
 import 'signup.dart';
+import 'history/history_page.dart'; // Add this import
 
 // --- Theme Colors ---
 const Color kPrimaryDarkPink = Color(0xFFE9386D);
@@ -22,12 +23,10 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   final savedEmail = prefs.getString('userEmail');
 
-print("🔍 Startup — Found saved email: $savedEmail");
-
+  print("🔍 Startup — Found saved email: $savedEmail");
 
   runApp(HerCareApp(isLoggedIn: savedEmail != null));
 }
-
 
 class HerCareApp extends StatelessWidget {
   final bool isLoggedIn;
@@ -48,20 +47,20 @@ class HerCareApp extends StatelessWidget {
         ),
       ),
       routes: {
+        // ❌ REMOVE this line: '/': (context) => isLoggedIn ? const MainNavigatorScreen() : const SignUpScreen(),
         '/period': (context) => PeriodTrackerPage(),
         '/breast': (context) => BreastCancerCheckApp(),
         '/pregnancy': (context) => PregnancyApp(),
         '/mental': (context) => MentalHealthScreen(),
         '/podcast': (context) => PodcastScreen(),
         '/signup': (context) => const SignUpScreen(),
+        '/history': (context) => const HistoryPage(),
       },
-      // 👇 if user already logged in → skip signup
+      // ✅ Keep only the home property
       home: isLoggedIn ? const MainNavigatorScreen() : const SignUpScreen(),
     );
   }
 }
-
-
 class MainNavigatorScreen extends StatefulWidget {
   const MainNavigatorScreen({super.key});
 
@@ -72,7 +71,7 @@ class MainNavigatorScreen extends StatefulWidget {
 class _MainNavigatorScreenState extends State<MainNavigatorScreen> {
   int _selectedIndex = 0;
 
-  // ⚠️ Not const, because PeriodTrackerPage() is a StatefulWidget.
+  // Updated to include History page
   final List<Widget> _widgetOptions = <Widget>[
     const HerCareHomePage(),
     const Center(
@@ -81,6 +80,7 @@ class _MainNavigatorScreenState extends State<MainNavigatorScreen> {
         style: TextStyle(color: kAppBarTextColor),
       ),
     ),
+    const HistoryPage(), // Add History as the third tab
   ];
 
   @override
@@ -91,6 +91,7 @@ class _MainNavigatorScreenState extends State<MainNavigatorScreen> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.medical_services_rounded), label: 'Doctors'),
+          BottomNavigationBarItem(icon: Icon(Icons.history_rounded), label: 'History'), // Add History tab
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: kPrimaryDarkPink,

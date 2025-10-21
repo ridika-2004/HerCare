@@ -193,15 +193,19 @@ class CycleData {
   }
   
   // Create a copy of the object
-  CycleData copyWith({
-    List<PeriodRecord>? periodHistory,
-    DateTime? predictedNextPeriod,
-    int? predictedCycleLength,
-  }) {
-    return CycleData(
-      periodHistory: periodHistory ?? this.periodHistory,
-      predictedNextPeriod: predictedNextPeriod ?? this.predictedNextPeriod,
-      predictedCycleLength: predictedCycleLength ?? this.predictedCycleLength,
-    );
-  }
+// In your CycleData class, add/update this method:
+CycleData copyWith({
+  List<PeriodRecord>? periodHistory,
+  DateTime? predictedNextPeriod,
+  int? predictedCycleLength,
+  DateTime? lastPeriodDate, // ADD THIS LINE
+  int? cycleLength,         // ADD THIS LINE
+  int? periodDuration,      // ADD THIS LINE
+}) {
+  return CycleData(
+    periodHistory: periodHistory ?? this.periodHistory,
+    predictedNextPeriod: predictedNextPeriod ?? this.predictedNextPeriod,
+    predictedCycleLength: predictedCycleLength ?? this.predictedCycleLength,
+  );
+}
 }

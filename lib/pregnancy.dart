@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'month1.dart';
 import 'month2.dart';
 import 'month3.dart';
@@ -9,38 +10,44 @@ import 'month7.dart';
 import 'month8.dart';
 import 'month9.dart';
 
-class PregnancyApp extends StatelessWidget {
+class PregnancyApp extends StatefulWidget {
   const PregnancyApp({super.key});
 
   @override
+  State<PregnancyApp> createState() => _PregnancyAppState();
+}
+
+class _PregnancyAppState extends State<PregnancyApp> {
+  String? userEmail;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserEmail();
+  }
+
+  Future<void> _loadUserEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    final email = prefs.getString('userEmail');
+
+    if (email != null) {
+      print("✅ Logged in as: $email");
+      setState(() {
+        userEmail = email;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Pregnancy Journey',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFFF69B4),
-          background: Colors.white,
-        ),
-        textTheme: const TextTheme(
-          titleLarge: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-          bodyMedium: TextStyle(fontSize: 16, color: Colors.black87),
-        ),
-      ),
-      debugShowCheckedModeBanner: false,
-      home: const PregnancyMonthsPage(), // directly open PregnancyMonthsPage
-    );
+    return PregnancyMonthsPage(userEmail: userEmail);
   }
 }
 
-
-// PregnancyMonthsPage remains the same as I sent earlier, with no manual leading/back arrow
 class PregnancyMonthsPage extends StatelessWidget {
-  const PregnancyMonthsPage({super.key});
+  final String? userEmail;
+
+  const PregnancyMonthsPage({super.key, this.userEmail});
 
   @override
   Widget build(BuildContext context) {
@@ -59,12 +66,12 @@ class PregnancyMonthsPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        // leading: IconButton(
-        //   icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
-        //   onPressed: () {
-        //     Navigator.of(context).pop();
-        //   },
-        // ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
+          onPressed: () {
+            Navigator.of(context).pop(); // Now correctly goes back to HerCareHomePage
+          },
+        ),
         title: const Text(
           "HerCare",
           style: TextStyle(
@@ -76,6 +83,20 @@ class PregnancyMonthsPage extends StatelessWidget {
         ),
         centerTitle: true,
         backgroundColor: const Color(0xFFFF69B4),
+        actions: [
+          if (userEmail != null)
+            IconButton(
+              icon: const Icon(Icons.logout, color: Colors.white),
+              onPressed: () async {
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.remove('userEmail'); // Clear login
+                if (context.mounted) {
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, '/signup', (route) => false);
+                }
+              },
+            ),
+        ],
         elevation: 0,
         toolbarHeight: 70,
       ),

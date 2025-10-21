@@ -75,7 +75,6 @@ class _MainNavigatorScreenState extends State<MainNavigatorScreen> {
   // ⚠️ Not const, because PeriodTrackerPage() is a StatefulWidget.
   final List<Widget> _widgetOptions = <Widget>[
     const HerCareHomePage(),
-    PeriodTrackerPage(), // real Tracker tab
     const Center(
       child: Text(
         'Recommended Doctors Screen (Coming Soon)',
@@ -91,7 +90,6 @@ class _MainNavigatorScreenState extends State<MainNavigatorScreen> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_today_rounded), label: 'Tracker'),
           BottomNavigationBarItem(icon: Icon(Icons.medical_services_rounded), label: 'Doctors'),
         ],
         currentIndex: _selectedIndex,

@@ -6,20 +6,20 @@ class HistoryManager {
   HistoryManager._internal();
 
   final List<HistoryEntry> _history = [];
-  final Map<String, int> _pageVisitCount = {};
+  final Map<String, int> _categoryVisitCount = {};
   static const int _maxHistoryEntries = 100;
   static const int _totalVisitors = 1247;
 
-  void addHistory(String pageName, String icon, String category) {
+  void addHistory(String category, Map<String, dynamic> data, {String? id}) {
     final entry = HistoryEntry(
-      pageName: pageName,
-      icon: icon,
+      id: id ?? DateTime.now().microsecondsSinceEpoch.toString(),
       category: category,
       timestamp: DateTime.now(),
+      data: data,
     );
 
     _history.insert(0, entry);
-    _pageVisitCount[pageName] = (_pageVisitCount[pageName] ?? 0) + 1;
+    _categoryVisitCount[category] = (_categoryVisitCount[category] ?? 0) + 1;
 
     if (_history.length > _maxHistoryEntries) {
       _history.removeLast();
@@ -30,14 +30,14 @@ class HistoryManager {
 
   void clearHistory() {
     _history.clear();
-    _pageVisitCount.clear();
+    _categoryVisitCount.clear();
   }
 
   int getHistoryCount() => _history.length;
 
-  int getPageVisitCount(String pageName) => _pageVisitCount[pageName] ?? 0;
+  int getPageVisitCount(String category) => _categoryVisitCount[category] ?? 0;
 
   int getTotalVisitors() => _totalVisitors;
 
-  Map<String, int> getVisitStats() => Map.from(_pageVisitCount);
+  Map<String, int> getVisitStats() => Map.from(_categoryVisitCount);
 }

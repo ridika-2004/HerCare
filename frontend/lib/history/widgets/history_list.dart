@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../history_manager.dart';
 import '../history_entry.dart';
 
 class HistoryList extends StatelessWidget {
@@ -42,18 +41,37 @@ class HistoryList extends StatelessWidget {
 
   Map<String, List<HistoryEntry>> _groupHistoryByDate(List<HistoryEntry> history) {
     final groupedHistory = <String, List<HistoryEntry>>{};
-
     for (var item in history) {
       final dateKey = _getDateKey(item.timestamp);
       groupedHistory.putIfAbsent(dateKey, () => []).add(item);
     }
-
     return groupedHistory;
   }
 
   Widget _buildHistoryItem(BuildContext context, HistoryEntry item) {
     final timeString = _formatTime(item.timestamp);
-    final visitCount = HistoryManager().getPageVisitCount(item.pageName);
+
+    // Determine display name and icon based on category
+    String displayName;
+    String displayIcon;
+
+    switch (item.category.toLowerCase()) {
+      case 'breast':
+        displayName = "Breast Step ${item.data['step_number']}";
+        displayIcon = "🩺";
+        break;
+      case 'period':
+        displayName = "Period: ${item.data['start_date']} → ${item.data['end_date']}";
+        displayIcon = "📅";
+        break;
+      case 'pregnancy':
+        displayName = "Pregnancy Check";
+        displayIcon = "🤰";
+        break;
+      default:
+        displayName = "History Item";
+        displayIcon = "📄";
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -77,10 +95,10 @@ class HistoryList extends StatelessWidget {
             color: Colors.pink.shade50,
             borderRadius: BorderRadius.circular(25),
           ),
-          child: Center(child: Text(item.icon, style: const TextStyle(fontSize: 28))),
+          child: Center(child: Text(displayIcon, style: const TextStyle(fontSize: 28))),
         ),
         title: Text(
-          item.pageName,
+          displayName,
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -109,27 +127,6 @@ class HistoryList extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.visibility, size: 10, color: Colors.blue.shade700),
-                      const SizedBox(width: 4),
-                      Text(
-                        '$visitCount visits',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.blue.shade700,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
             const SizedBox(height: 4),
@@ -152,7 +149,7 @@ class HistoryList extends StatelessWidget {
         onTap: () {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Opening ${item.pageName}...'),
+              content: Text('Opening ${item.category} history...'),
               duration: const Duration(seconds: 1),
               backgroundColor: Colors.pink,
             ),

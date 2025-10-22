@@ -70,7 +70,7 @@ class _MainNavigatorScreenState extends State<MainNavigatorScreen> {
 
   final List<Widget> _widgetOptions = <Widget>[
     const HerCareHomePage(),
-     DoctorsTab(),  // Added DoctorsTab here for navigation
+    DoctorsTab(),  // Added DoctorsTab here for navigation
     const HistoryPage(),
   ];
 
@@ -92,3 +92,4 @@ class _MainNavigatorScreenState extends State<MainNavigatorScreen> {
     );
   }
 }
+

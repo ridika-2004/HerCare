@@ -90,7 +90,7 @@ class CycleData {
     );
     
     periodHistory.add(newRecord);
-    _updatePredictions();
+    updatePredictions();
   }
   
   int _calculateCycleLength(DateTime newStartDate) {
@@ -103,7 +103,7 @@ class CycleData {
     return (daysBetween >= 20 && daysBetween <= 40) ? daysBetween : 28;
   }
   
-  void _updatePredictions() {
+  void updatePredictions() {
     if (periodHistory.length >= 2) {
       predictedCycleLength = _calculateAverageCycleLength();
       if (lastPeriodDate != null) {

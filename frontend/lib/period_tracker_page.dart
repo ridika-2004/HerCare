@@ -23,7 +23,7 @@ class _PeriodTrackerPageState extends State<PeriodTrackerPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this); // Length updated to 2
+    _tabController = TabController(length: 2, vsync: this);
     _loadData();
   }
 
@@ -39,11 +39,17 @@ class _PeriodTrackerPageState extends State<PeriodTrackerPage>
     });
   }
 
+
   void _updateCycleData(CycleData newCycleData) async {
+
     setState(() {
+
       _cycleData = newCycleData; // Replace the entire instance
+
     });
+
     await StorageService.saveCycleData(newCycleData);
+
   }
 
   void _updateSymptomTracker(SymptomTracker newSymptomTracker) {
@@ -72,7 +78,7 @@ class _PeriodTrackerPageState extends State<PeriodTrackerPage>
     }
 
     return DefaultTabController(
-      length: 2, // Length updated to 2
+      length: 2, // Length updated to 3
       child: Scaffold(
         backgroundColor: AppConstants.backgroundColor,
         appBar: AppBar(

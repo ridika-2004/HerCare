@@ -128,14 +128,7 @@ class PregnancyMonthsPage extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  Text(
-                    "Doctors",
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+
                 ],
               ),
             ),
@@ -199,9 +192,12 @@ class PregnancyMonthsPage extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => monthPages[index]),
+                        MaterialPageRoute(
+                          builder: (_) => monthPages[index],
+                        ),
                       );
                     },
+
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.white,

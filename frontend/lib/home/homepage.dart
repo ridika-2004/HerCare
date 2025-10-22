@@ -41,7 +41,7 @@ class _HerCareHomePageState extends State<HerCareHomePage> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const signup.SignUpScreen()),
-      (route) => false,
+          (route) => false,
     );
   }
 
@@ -95,13 +95,21 @@ class _HerCareHomePageState extends State<HerCareHomePage> {
   ];
 
   void _onFeatureTap(Map<String, dynamic> feature, BuildContext context) {
+    // Create a data map for the feature
+    final featureData = {
+      'title': feature['title'],
+      'emoji': feature['emoji'],
+      'route': feature['route'] ?? '',
+    };
+
+    // Add to history
     HistoryManager().addHistory(
-      feature['title'] as String,
-      feature['emoji'] as String,
-      feature['category'] as String,
+      feature['category'] as String, // category
+      featureData,                   // data
     );
 
-    final String route = feature['route'] as String;
+    // Navigate or show "coming soon"
+    final String route = feature['route'] as String? ?? '';
     if (route.isNotEmpty) {
       Navigator.pushNamed(context, route);
     } else {
@@ -114,6 +122,7 @@ class _HerCareHomePageState extends State<HerCareHomePage> {
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -161,21 +170,30 @@ class _HerCareHomePageState extends State<HerCareHomePage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          HistoryManager().addHistory(
-            'Find a Doctor',
-            '👩‍⚕️',
-            'Healthcare',
-          );
-          // Optionally navigate to the doctor page
-          // Navigator.pushNamed(context, '/doctor');
-        },
-        //backgroundColor: kPrimaryDarkPink,  // Set background color
-        //child: const Icon(Icons.medical_services_rounded, color: Colors.white),  // Only icon, no text
-      ),
-     // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+          // Create data map
+          final featureData = {
+            'title': 'Find a Doctor',
+            'emoji': '👩‍⚕️',
+            // Add other info if needed, e.g., route
+          };
 
+          // Add to history
+          HistoryManager().addHistory(
+            'Healthcare', // category
+            featureData,  // data
+          );
+        },
+        backgroundColor: kPrimaryDarkPink,
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text(
+          "Find a Doctor",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+        ),
+      ),
+
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

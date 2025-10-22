@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'constants/colors.dart';
-
-// Theme Colors (Matching main.dart and HerCareHomePage.dart for consistency)
-
-// ====================================================================
-// PODCAST SCREEN
-// ====================================================================
+import 'package:url_launcher/url_launcher.dart';
+import '../constants/colors.dart';
+import '../services/podcast_service.dart';
 
 class PodcastScreen extends StatefulWidget {
   const PodcastScreen({super.key});
@@ -18,6 +14,8 @@ class PodcastScreen extends StatefulWidget {
 
 class _PodcastScreenState extends State<PodcastScreen> {
   String? userEmail;
+  List<dynamic> podcasts = [];
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -31,28 +29,97 @@ class _PodcastScreenState extends State<PodcastScreen> {
 
     if (email != null) {
       print("✅ Logged in as: $email");
-      setState(() {
-        userEmail = email;
-      });
+      setState(() => userEmail = email);
+      await _fetchPodcasts(); // fetch after login
     }
   }
 
-  // Function to handle the button press (placeholder for now)
-  void _addCustomPodcast(BuildContext context) {
-    // This is where you would launch a modal/dialog
-    // to collect the custom podcast link and name.
-    print('Add Custom Podcast button pressed. Implement modal here!');
+  Future<void> _fetchPodcasts() async {
+    if (userEmail == null) return;
+    setState(() => isLoading = true);
 
-    // Show a quick feedback SnackBar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Custom link feature coming soon!',
-          style: GoogleFonts.poppins(color: Colors.white),
-        ),
-        backgroundColor: kAppBarTextColor,
-        duration: const Duration(seconds: 1),
-      ),
+    try {
+      final data = await PodcastService.getPodcasts(userEmail!);
+      setState(() => podcasts = data);
+    } catch (e) {
+      print("❌ Failed to load podcasts: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to load podcasts: $e")),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> _deletePodcast(String title) async {
+    if (userEmail == null) return;
+    try {
+      await PodcastService.deletePodcast(userEmail!, title);
+      await _fetchPodcasts(); // refresh list
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Podcast deleted")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to delete: $e")),
+      );
+    }
+  }
+
+  Future<void> _addCustomPodcast(BuildContext context) async {
+    final TextEditingController titleController = TextEditingController();
+    final TextEditingController linkController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Add Custom Podcast',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: const InputDecoration(labelText: 'Podcast Title'),
+              ),
+              TextField(
+                controller: linkController,
+                decoration: const InputDecoration(labelText: 'Podcast Link'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  await PodcastService.addPodcast(
+                    userEmail ?? "unknown@example.com",
+                    titleController.text.trim(),
+                    linkController.text.trim(),
+                  );
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    await _fetchPodcasts(); // refresh list
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Podcast saved!")),
+                    );
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Failed: $e")),
+                  );
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -86,39 +153,83 @@ class _PodcastScreenState extends State<PodcastScreen> {
             ),
         ],
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(30.0),
+      // <<< REPLACE THIS `body:` PART WITH THE NEW SNIPPET
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+        onRefresh: _fetchPodcasts,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.mic_rounded, size: 80, color: kPrimaryDarkPink),
+              if (podcasts.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40),
+                  child: Text(
+                    "No podcasts added yet 💫",
+                    style: GoogleFonts.poppins(
+                      color: kAppBarTextColor.withOpacity(0.7),
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ...podcasts.map((podcast) => Card(
+                color: Colors.white,
+                elevation: 3,
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  title: Text(
+                    podcast["title"] ?? "Untitled",
+                    style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    podcast["link"] ?? "",
+                    style: GoogleFonts.poppins(
+                      color: Colors.grey[600],
+                      fontSize: 13,
+                    ),
+                  ),
+                  trailing: Wrap(
+                    spacing: 12,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.play_arrow,
+                            color: kPrimaryDarkPink),
+                        onPressed: () async {
+                          final url = Uri.parse(podcast["link"]);
+                          if (await canLaunchUrl(url)) {
+                            await launchUrl(url);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content:
+                                    Text("Could not open link")));
+                          }
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete,
+                            color: Colors.redAccent),
+                        onPressed: () =>
+                            _deletePodcast(podcast["title"]),
+                      ),
+                    ],
+                  ),
+                ),
+              )),
               const SizedBox(height: 20),
-              Text(
-                'Podcast Hub',
-                style: GoogleFonts.poppins(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: kAppBarTextColor,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'We are curating the best wellness and empowerment content for you! This screen will feature recommended podcasts and a custom link option soon.',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  color: kAppBarTextColor.withOpacity(0.7),
-                ),
-              ),
-              // CUSTOM PODCAST BUTTON
-              const SizedBox(height: 40),
               SizedBox(
                 width: 250,
                 height: 50,
                 child: ElevatedButton.icon(
                   onPressed: () => _addCustomPodcast(context),
-                  icon: const Icon(Icons.add_link_rounded, color: Colors.white),
+                  icon: const Icon(Icons.add_link_rounded,
+                      color: Colors.white),
                   label: Text(
                     'Add Custom Podcast',
                     style: GoogleFonts.poppins(
@@ -143,4 +254,5 @@ class _PodcastScreenState extends State<PodcastScreen> {
       ),
     );
   }
+
 }

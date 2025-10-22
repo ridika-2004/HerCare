@@ -1,31 +1,31 @@
 class HistoryEntry {
-  final String pageName;
-  final String icon;
+  final String id;
   final String category;
   final DateTime timestamp;
+  final Map<String, dynamic> data;
 
   HistoryEntry({
-    required this.pageName,
-    required this.icon,
+    required this.id,
     required this.category,
     required this.timestamp,
+    required this.data,
   });
+
+  factory HistoryEntry.fromMap(Map<String, dynamic> map) {
+    return HistoryEntry(
+      id: map['_id'] ?? DateTime.now().microsecondsSinceEpoch.toString(),
+      category: map['category'] ?? 'General',
+      timestamp: DateTime.parse(map['timestamp'] ?? DateTime.now().toIso8601String()),
+      data: map,
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
-      'pageName': pageName,
-      'icon': icon,
+      '_id': id,
       'category': category,
-      'timestamp': timestamp,
+      'timestamp': timestamp.toIso8601String(),
+      ...data,
     };
-  }
-
-  static HistoryEntry fromMap(Map<String, dynamic> map) {
-    return HistoryEntry(
-      pageName: map['pageName'],
-      icon: map['icon'],
-      category: map['category'],
-      timestamp: map['timestamp'],
-    );
   }
 }

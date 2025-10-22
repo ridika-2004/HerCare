@@ -52,7 +52,7 @@ class _MentalHealthScreenState extends State<MentalHealthScreen> {
         'icon': Icons.spa_rounded,
         'color': kPrimaryDarkPink,
       },
-      {'isCustomAdd': true, 'category': 'Meditation'},
+
     ],
     'Music': [
       {
@@ -76,7 +76,7 @@ class _MentalHealthScreenState extends State<MentalHealthScreen> {
         'color': kCardMentalTeal.withOpacity(0.8),
         'audioUrl': 'https://cdn.pixabay.com/audio/2022/08/02/audio_d2b76c6e95.mp3',
       },
-      {'isCustomAdd': true, 'category': 'Music'},
+
     ],
     'Exercise': [
       {
@@ -97,7 +97,7 @@ class _MentalHealthScreenState extends State<MentalHealthScreen> {
         'icon': Icons.chair_rounded,
         'color': kCardGamesPurple.withOpacity(0.9)
       },
-      {'isCustomAdd': true, 'category': 'Exercise'},
+
     ],
     'Diet': [
       {
@@ -118,7 +118,7 @@ class _MentalHealthScreenState extends State<MentalHealthScreen> {
         'icon': Icons.healing_rounded,
         'color': kCardPeriodRed
       },
-      {'isCustomAdd': true, 'category': 'Diet'},
+
     ],
     'Travel / Tours': [
       {
@@ -133,7 +133,7 @@ class _MentalHealthScreenState extends State<MentalHealthScreen> {
         'icon': Icons.beach_access_rounded,
         'color': kCardPregnancyOrange
       },
-      {'isCustomAdd': true, 'category': 'Travel / Tours'},
+
     ],
     // + NEW: Skincare category
     'Skincare': [
@@ -155,7 +155,7 @@ class _MentalHealthScreenState extends State<MentalHealthScreen> {
         'icon': Icons.opacity_rounded,
         'color': kCardMentalTeal,
       },
-      {'isCustomAdd': true, 'category': 'Skincare'},
+
     ],
 
   };

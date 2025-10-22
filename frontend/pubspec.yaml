@@ -1,0 +1,38 @@
+name: apps
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.9.2 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Add Google Fonts package here 👇
+  google_fonts: 4.0.4
+
+  # Cupertino icons (iOS-style)
+  cupertino_icons: ^1.0.8
+
+  # Shared Preferences
+  shared_preferences: ^2.0.0
+
+  # Audioplayers
+  audioplayers: 6.5.1
+
+  # URL Launcher
+  url_launcher: ^6.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  # assets:
+  #   - images/a_dot_burr.jpeg
+  #   - images/a_dot_ham.jpeg

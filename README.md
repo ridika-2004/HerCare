@@ -37,7 +37,7 @@
 | Name | Github Profile | 
 |--------------------------------------|------------------------------------------------|
 | Noshin Syara Promitee | [github](https://github.com/AfrinJahanEra) |
-| Zannatul Adon Sabiha | [github](https://github.com/Ramisa105) |
+| Zannatul Adon Sabiha | [github](https://github.com/ZAsabiha) |
 | Ridika Naznin | [github](https://github.com/ridika-2004) |
 
 ## License
